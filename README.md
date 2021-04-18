@@ -121,4 +121,20 @@ sub mark {
 sub clear {
     open  E, ">$logfile";
     close E;
-}
+}!
+
+
+
+The SHA-1 string is your SHA hashed "username|password" (without quotes).
+
+Important Notes:
+Username must be LOWERCASE.
+Password is CASE SENSITIVE.
+Password is maximum length of 16 characters.
+
+If you change your password, your API key and update URLs will also change.
+
+Sample XML Output:
+
+[xmlexport](https://user-images.githubusercontent.com/31497130/115133658-8254a780-a03c-11eb-9965-9434fc711a1a.gif)
+

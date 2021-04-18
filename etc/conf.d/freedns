@@ -1,0 +1,12 @@
+# /etc/conf.d/freedns
+
+# Command to find the current IP on the system.
+CHECK_CMD="/usr/bin/curl -s http://ip.dnsexit.com/ | sed -e 's/ //'"
+
+# Where to store the file containing the old IP
+# for comparison on the next run.
+OLDIP_FILE="/var/lib/misc/oldip"
+
+# The command to run when the IP is different.
+UPDATE_URL="http://freedns.afraid.org/dynamic/update.php?" <--edit this line to the url from http://freedns.afraid.org/dynamic/index.php
+UPDATE_COMMAND="/usr/bin/curl -s $UPDATE_URL"

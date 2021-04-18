@@ -1,6 +1,41 @@
 # freedns
+Read Me
+Method 1 ------------------------------------------------------
 
-###ddclient
+The following config will allow the Linux machine (10.1.1.2) to read
+the IP address from the DHCP interface on the Cisco router (eth0) as
+user ddclient.  Since ddclient is configured with a priv level of 1 it
+cannot do anything except look at the routers stats, ip addresses,
+etc.  This should be pretty harmless even if ddclient's password were
+to be discovered.
+
+This has been tested with Cisco IOS 12.1(5)T5 running on a Cisco 2621
+router.
+
+Cisco Router Config (Assuming eth0 is DHCP interface)
+-----------------------------------------------------
+user ddclient password password
+user ddclient priv 1
+ip http auth local
+ip http access-class 99
+ip http port 1021
+ip http server
+access-list 99 permit host 10.1.1.2
+
+DDClient Config
+---------------------------------------------------
+use=cisco, fw=10.1.1.1, if=eth0, fw-login=ddclient, fw-password=password
+
+
+Method 2 ------------------------------------------------------
+
+use=fw
+fw=192.168.1.1/exec/show/interfaces/CR
+fw-skip=FastEthernet0/0
+fw-login=ddclient
+fw-password=xxxxxxxx
+
+
 
 Client Requirement: Perl
 ddclient supports many services, including 'freedns'
@@ -9,21 +44,33 @@ Sample config:
 
 daemon=5m
 timeout=10
-syslog=no # log update msgs to syslog
-#mail=root # mail all msgs to root
-#mail-failure=root # mail failed update msgs to root
-pid=/var/run/ddclient.pid # record PID in file.
-ssl=yes # use ssl-support. Works with
+syslog=no 
+# log update msgs to syslog
+#mail=root 
+# mail all msgs to root
+#mail-failure=root 
+# mail failed update msgs to root
+pid=/var/run/ddclient.pid 
+# record PID in file.
+ssl=yes 
+# use ssl-support. Works with
 # ssl-library
-
 use=if, if=eth0
+
 server=freedns.afraid.org
+
 protocol=freedns
+
 login=login_name
+
 password=the_password
+
 somedomain.mooo.com
 
-# Sample #2 (Provided 2013-08-20 by Anki Borgh who reported difficulty with example above)
+
+
+# Sample 2
+# (Provided 2013-08-20 by Anki Borgh who reported difficulty with example above)
 # use=your_router #If supported, can be listed with ddclient --help
 # server=freedns.afraid.org
 # protocol=dyndns1
@@ -31,12 +78,14 @@ somedomain.mooo.com
 # password=the_password
 # somedomain.mooo.com
 
-Update #3 2013-09-17 as noted by user Harald Brinkmann:
+Update 3
+# 2013-09-17 as noted by user Harald Brinkmann:
 Using ddclient for afraid.org requires ddclient version 3.8.1 (that's the latest version available) and "protocol" *must* be set to "freedns". Using ddclient 3.8.0 produces weird results and a couple of protocol options sort-of work, but not really. I guess that that is the source of the problem Anki Borgh reported. Maybe you can update your info for the benefit of the next person struggling with setting ddclient.
 
-Update #4 2014-07-23 Pásztor Szilárd reports that "username" must be lowercase or else you will receive "could not authenticate" error.
+Update 4
+# 2014-07-23 Pásztor Szilárd reports that "username" must be lowercase or else you will receive "could not authenticate" error.
 
-###Dynamic Ip Script
+### Dynamic Ip Script
 ################### 
 ##
 ##  FreeDNS.Afraid.org Dynamic IP script
@@ -53,7 +102,7 @@ use LWP::UserAgent;
 $logfile   = 'fda-ip.log';
 $ipfile    = 'fda-ip.txt';
 
-#clear the logfile
+# clear the logfile
 clear();
 
 mark("START","Starting dynamic IP program");
@@ -64,7 +113,7 @@ while (1) {
     $prev_ip = <S>;
     close S;
 
-    #get the current ip address
+    # get the current ip address
     ($name,$aliases,$addrtype,$length,@addrs) = gethostbyname(Sys::Hostname::ghname());
 
     ($a,$b,$c,$d) = unpack('C4',$addrs[0]);

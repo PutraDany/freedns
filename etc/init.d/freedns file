@@ -1,0 +1,52 @@
+#!/sbin/runscript
+# Copyright 2006 Jeffrey Nichols
+
+depend() {
+        need net
+        use dns logger
+}
+
+checkconfig() {
+        if [ -z "${CHECK_CMD}" ] ; then
+                eerror "Please edit /etc/conf.d/freedns"
+                eerror "I need to know how to check for IP!"
+                return 1
+        fi
+        if [ -z "${OLDIP_FILE}" ] ; then
+                eerror "Please edit /etc/conf.d/freedns"
+                eerror "I need to know where to store the IP file!"
+                return 1
+        fi
+        if [ -z "${UPDATE_COMMAND}" ] ; then
+                eerror "Please edit /etc/conf.d/freedns"
+                eerror "I need to know how to update the IP!"
+                return 1
+        fi
+        return 0
+}
+
+start() {
+        checkconfig || return $?
+
+        ebegin "Getting current IP"
+        CURRENTIP=`${CHECK_CMD}`
+        echo "Found ${CURRENTIP}"
+
+        if [ ! -e "${OLDIP_FILE}" ] ; then
+                echo "Creating ${OLDIP_FILE}"
+                echo "0.0.0.0" > "${OLDIP_FILE}"
+        fi
+
+        OLDIP=`cat ${OLDIP_FILE}`
+        eend $? "Error reading old ip"
+
+        if [ "${CURRENTIP}" != "${OLDIP}" ] ; then
+                ebegin "Issuing update command"
+                ${UPDATE_COMMAND}
+                eend $? "Update failed"
+        fi
+
+        ebegin "Saving IP"
+        echo "${CURRENTIP}" > "${OLDIP_FILE}"
+        eend $? "Save failed"
+}
